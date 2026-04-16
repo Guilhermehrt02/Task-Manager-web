@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { AuthService } from '../auth.service';
 
 @Component({
     selector: 'app-login',
@@ -40,7 +41,8 @@ import { InputTextModule } from 'primeng/inputtext';
                             <input
                                 type="text"
                                 class="!appearance-none !border !border-white/10 !w-full !outline-0 !bg-white/10 !text-white placeholder:!text-white/70 !rounded-3xl !shadow-sm"
-                                placeholder="Username"
+                                placeholder="Email"
+                                [(ngModel)]="email"
                             />
                         </p-iconfield>
                         <p-iconfield icon-position="left">
@@ -49,10 +51,11 @@ import { InputTextModule } from 'primeng/inputtext';
                                 type="password"
                                 class="!appearance-none !border !border-white/10 !w-full !outline-0 !bg-white/10 !text-white placeholder:!text-white/70 !rounded-3xl !shadow-sm"
                                 placeholder="Password"
+                                [(ngModel)]="password"
                             />
                         </p-iconfield>
                     </div>
-                    <button pButton class="!w-full !rounded-3xl !bg-surface-950 !border !border-surface-950 !text-white hover:!bg-surface-950/80">
+                    <button pButton class="!w-full !rounded-3xl !bg-surface-950 !border !border-surface-950 !text-white hover:!bg-surface-950/80" (click)="login()">
                         <span pButtonLabel>Sign In</span>
                     </button>
                 </div>
@@ -61,4 +64,24 @@ import { InputTextModule } from 'primeng/inputtext';
         </div>
     `
 })
-export class LoginComponent {}
+export class LoginComponent {
+    email: string = '';
+    password: string = '';
+
+    constructor(private authService: AuthService) { }
+    
+    login() {
+        this.authService.login({
+            email: this.email,
+            password: this.password
+        }).subscribe({
+            next: (res: any) => {
+                localStorage.setItem('token', res.access_token);
+                console.log('Login sucesso', res);
+            },
+            error: (err) => {
+                console.error('Erro no login', err);
+            }
+        });
+    }
+}

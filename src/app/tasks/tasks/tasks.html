@@ -1,0 +1,46 @@
+<div class="p-4 max-w-xl mx-auto">
+
+    <h2 class="text-2xl font-semibold mb-4">Tasks</h2>
+
+    <!-- Criar tarefa -->
+    <div class="flex gap-2 mb-4">
+        <input pInputText [(ngModel)]="newTask" placeholder="Nova tarefa" class="flex-1" />
+        <button pButton label="Criar" icon="pi pi-plus" (click)="createTask()"></button>
+    </div>
+
+    <!-- Lista -->
+    <div *ngIf="tasks$ | async as tasks">
+
+        <!-- Empty state -->
+        <div *ngIf="tasks.length === 0" class="text-center text-gray-500 mt-4">
+            Nenhuma tarefa encontrada
+        </div>
+
+        <!-- Tasks -->
+        <div class="flex flex-col gap-3">
+            <p-card *ngFor="let task of tasks; trackBy: trackByTaskId">
+
+                <div class="flex justify-between items-center">
+
+                    <!-- esquerda -->
+                    <div class="flex items-center gap-2">
+                        <p-checkbox [binary]="true" [ngModel]="task.completed" (onChange)="toggleTask(task)">
+                        </p-checkbox>
+
+                        <span [class.line-through]="task.completed" class="cursor-pointer">
+                            {{ task.title }}
+                        </span>
+                    </div>
+
+                    <!-- direita -->
+                    <button pButton icon="pi pi-trash" severity="danger" size="small" (click)="deleteTask(task)"
+                        class="ml-2"></button>
+
+                </div>
+
+            </p-card>
+        </div>
+
+    </div>
+
+</div>
