@@ -6,6 +6,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -68,7 +69,10 @@ export class LoginComponent {
     email: string = '';
     password: string = '';
 
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private router: Router
+    ) { }
     
     login() {
         this.authService.login({
@@ -77,7 +81,8 @@ export class LoginComponent {
         }).subscribe({
             next: (res: any) => {
                 localStorage.setItem('token', res.access_token);
-                console.log('Login sucesso', res);
+
+                this.router.navigate(['/tasks']);
             },
             error: (err) => {
                 console.error('Erro no login', err);
