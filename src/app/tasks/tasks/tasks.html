@@ -7,6 +7,40 @@
         <input pInputText [(ngModel)]="newTask" placeholder="Nova tarefa" class="flex-1" />
         <button pButton label="Criar" icon="pi pi-plus" (click)="createTask()"></button>
     </div>
+    
+    <button
+    pButton
+    label="Todas"
+    [class.p-button-secondary]="filter !== 'all'"
+    [class.p-button-primary]="filter === 'all'"
+    (click)="setFilter('all')">
+    </button>
+
+    <button
+    pButton
+    label="Concluídas"
+    [class.p-button-secondary]="filter !== 'completed'"
+    [class.p-button-primary]="filter === 'completed'"
+    (click)="setFilter('completed')">
+    </button>
+
+    <button
+    pButton
+    label="Pendentes"
+    [class.p-button-secondary]="filter !== 'pending'"
+    [class.p-button-primary]="filter === 'pending'"
+    (click)="setFilter('pending')">
+    </button>
+
+    <div class="flex justify-between items-center gap-2 mb-4">
+        <div class="text-sm text-gray-600">
+            Página {{ page }} de {{ lastPage }} — {{ total }} tarefas
+        </div>
+        <div class="flex gap-2">
+            <button pButton label="Anterior" icon="pi pi-angle-left" [disabled]="page === 1" (click)="prevPage()"></button>
+            <button pButton label="Próxima" icon="pi pi-angle-right" iconPos="right" [disabled]="page === lastPage" (click)="nextPage()"></button>
+        </div>
+    </div>
 
     <!-- Lista -->
     <div *ngIf="tasks$ | async as tasks">

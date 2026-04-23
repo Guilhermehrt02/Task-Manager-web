@@ -10,8 +10,17 @@ export class TasksService {
 
   constructor(private http: HttpClient) {}
 
-  getTasks() {
-    return this.http.get(this.apiUrl);
+  getTasks(params: any = {}) {
+    const filteredParams: any = {};
+
+    Object.keys(params).forEach((key) => {
+      const value = params[key];
+      if (value !== undefined && value !== null) {
+        filteredParams[key] = value;
+      }
+    });
+
+    return this.http.get<any>(this.apiUrl, { params: filteredParams });
   }
 
   createTask(data: { title: string }) {

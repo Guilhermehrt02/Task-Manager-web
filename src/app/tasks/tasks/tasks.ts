@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { TasksService } from '../tasks.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
+import { catchError, map, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -27,11 +27,16 @@ export class Tasks {
 
   newTask: string = '';
   private reload$ = new Subject<void>();
+  filter: 'all' | 'completed' | 'pending' = 'all';
+  page = 1;
+  lastPage = 1;
+  total = 0;
 
   tasks$ = this.reload$.pipe(
     startWith(void 0),
     switchMap(() =>
-      this.tasksService.getTasks().pipe(
+      this.tasksService.getTasks(this.getQueryParams()).pipe(
+        tap((res: any) => this.setPagination(res)),
         map((res: any) => this.extractTasks(res)),
         catchError((err) => {
           return of([]);
@@ -93,5 +98,49 @@ export class Tasks {
       this.newTask = '';
       this.reload$.next();
     });
+  }
+
+  private getQueryParams() {
+    const params: { completed?: string; page?: number } = {};
+
+    if (this.filter === 'completed') {
+      params.completed = 'true';
+    } else if (this.filter === 'pending') {
+      params.completed = 'false';
+    }
+
+    params.page = this.page;
+
+    return params;
+  }
+
+  private setPagination(res: any) {
+    this.total = res?.meta?.total ?? this.total;
+    this.page = res?.meta?.page ?? this.page;
+    this.lastPage = res?.meta?.lastPage ?? this.lastPage;
+  }
+
+  loadTasks() {
+    this.reload$.next();
+  }
+
+  setFilter(value: 'all' | 'completed' | 'pending') {
+    this.filter = value;
+    this.page = 1;
+    this.loadTasks();
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.loadTasks();
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.lastPage) {
+      this.page++;
+      this.loadTasks();
+    }
   }
 }
