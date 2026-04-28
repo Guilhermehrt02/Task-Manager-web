@@ -2,11 +2,13 @@ import { Component, inject } from '@angular/core';
 import { TasksService } from '../tasks.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { catchError, map, of, startWith, Subject, switchMap, tap } from 'rxjs';
+import { catchError, map, of, startWith, Subject, switchMap, tap, finalize } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-tasks',
@@ -16,8 +18,10 @@ import { CheckboxModule } from 'primeng/checkbox';
     InputTextModule,
     ButtonModule,
     CardModule,
-    CheckboxModule
-    ],
+    CheckboxModule, 
+    ProgressSpinnerModule,
+    SkeletonModule
+  ],
   templateUrl: './tasks.html',
   styleUrl: './tasks.css',
   standalone: true
@@ -32,14 +36,21 @@ export class Tasks {
   lastPage = 1;
   total = 0;
 
+  loading = false;
+
   tasks$ = this.reload$.pipe(
     startWith(void 0),
+    tap(() => setTimeout(() => (this.loading = true))),
     switchMap(() =>
       this.tasksService.getTasks(this.getQueryParams()).pipe(
         tap((res: any) => this.setPagination(res)),
         map((res: any) => this.extractTasks(res)),
         catchError((err) => {
           return of([]);
+        })
+        ,
+        finalize(() => {
+          this.loading = false;
         })
       )
     )
